@@ -35,35 +35,6 @@ df['Mortality risk'] = df['Mortality risk'].fillna(df['Mortality risk'].value_co
 #checking the collinearity
 df1 = df.corr() # none of the columns are collinear
 
-#checking the data types
-df.dtypes
-
-str_columns = [                         
-"Age",                                       
-"Gender", "Cultural_group",                                                             
-"Days_spend_hsptl",                          
-"Admission_type",                           
-"Home or self care,","ccs_diagnosis_description",                                
-"apr_drg_description","ccs_procedure_description",                   
-"apr_mdc_description",                                            
-"Mortality risk",                           
-"Surg_Description",                         
-"Payment_typology_1",                                                                        
-"Emergency dept_yes/No",                     
-"Result"]                         
-
-
-#convert the Object columns from numeric
-from sklearn import preprocessing
-for i in str_columns:
-    number = preprocessing.LabelEncoder()
-    df[i] = number.fit_transform(df[i])
-#pair plot
-'''    
-import seaborn as sns
-sns.pairplot(df) 
-plt.show()
-'''
 #renaming columns to fit the model
 cols = ['Age', 'Gender', 'Cultural_group',
 'Days_spend_hsptl', 'Admission_type', 'Home_or_self_care',
@@ -77,10 +48,19 @@ cols = ['Age', 'Gender', 'Cultural_group',
 
 df.columns = cols
 
-#checking the outliers 
+str_columns = ["Age","Gender", "Cultural_group","Days_spend_hsptl","Admission_type","Home_or_self_care","ccs_diagnosis_description","apr_drg_description","ccs_procedure_description","apr_mdc_description","Mortality_risk","Surg_Description","Payment_typology_1","Emergency_dept_yes_No"]                         
 
+str_cols = pd.DataFrame()
+#convert the Object columns from numeric
+for i in str_columns:
+    df[i] = df[i].astype('category')
 
-
+#converting results in code for building the model
+df["Result_Output"] = np.zeros(df.shape[0])
+df['Result'].value_counts()
+df.loc[df.Result == "Genuine","Result_Output"] = 1
+df.loc[df.Result == "Fraudulent","Result_Output"] = 0
+df['Result'] = df["Result_Output"]
 
 #building the logistic regression model
 import statsmodels.formula.api as sm
